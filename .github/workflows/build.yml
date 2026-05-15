@@ -9,83 +9,75 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  build-macos-intel:
-    runs-on: macos-latest
+  build-macos-x64:
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
-      - run: node -e "const fs=require('fs');const v=process.argv[1].replace(/^v/,'');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.version=v;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')" ${{ github.ref_name }}
+      - run: node -e "const fs=require('fs');const v=process.argv[1].replace(/^v/,'');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.version=v;c.bundle.createUpdaterArtifacts=true;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')" ${{ github.ref_name }}
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-          cache: yarn
+        with: { node-version: lts/*, cache: yarn }
       - run: yarn install --frozen-lockfile
-      - name: Enable updater artifacts for CI
-        run: node -e "const fs=require('fs');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.bundle.createUpdaterArtifacts=true;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')"
       - run: yarn tauri build --bundles dmg
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
       - name: Generate latest.json
-        run: node .github/scripts/gen-update-json.mjs darwin-x86_64 ${{ github.ref_name }} ${{ github.repository }} macos
-      - run: |
-          echo "=== Bundle contents ==="
-          find src-tauri/target/release/bundle -type f
-          find src-tauri/target/release/bundle -name ".VolumeIcon.icns" -delete
+        run: node .github/scripts/gen-update-json.mjs darwin-x86_64 ${{ github.ref_name }} ${{ github.repository }}
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
+      - run: find src-tauri/target/release/bundle -type f -name '.VolumeIcon.icns' -delete
       - uses: actions/upload-artifact@v4
         with:
-          name: macos-intel
+          name: macos-x64
           path: src-tauri/target/release/bundle/
 
   build-macos-arm64:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - run: node -e "const fs=require('fs');const v=process.argv[1].replace(/^v/,'');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.version=v;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')" ${{ github.ref_name }}
+      - run: node -e "const fs=require('fs');const v=process.argv[1].replace(/^v/,'');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.version=v;c.bundle.createUpdaterArtifacts=true;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')" ${{ github.ref_name }}
       - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: aarch64-apple-darwin
       - uses: Swatinem/rust-cache@v2
       - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-          cache: yarn
+        with: { node-version: lts/*, cache: yarn }
       - run: yarn install --frozen-lockfile
-      - name: Enable updater artifacts for CI
-        run: node -e "const fs=require('fs');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.bundle.createUpdaterArtifacts=true;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')"
-      - run: yarn tauri build --target aarch64-apple-darwin --bundles dmg
+      - run: yarn tauri build --bundles dmg
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
       - name: Generate latest.json
-        run: node .github/scripts/gen-update-json.mjs darwin-aarch64 ${{ github.ref_name }} ${{ github.repository }} macos
-      - run: find src-tauri/target/aarch64-apple-darwin/release/bundle -name ".VolumeIcon.icns" -delete
+        run: node .github/scripts/gen-update-json.mjs darwin-aarch64 ${{ github.ref_name }} ${{ github.repository }}
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
+      - run: find src-tauri/target/release/bundle -type f -name '.VolumeIcon.icns' -delete
       - uses: actions/upload-artifact@v4
         with:
           name: macos-arm64
-          path: src-tauri/target/aarch64-apple-darwin/release/bundle/
+          path: src-tauri/target/release/bundle/
 
   build-windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - run: node -e "const fs=require('fs');const v=process.argv[1].replace(/^v/,'');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.version=v;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')" ${{ github.ref_name }}
+      - run: node -e "const fs=require('fs');const v=process.argv[1].replace(/^v/,'');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.version=v;c.bundle.createUpdaterArtifacts=true;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')" ${{ github.ref_name }}
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-          cache: yarn
+        with: { node-version: lts/*, cache: yarn }
       - run: yarn install --frozen-lockfile
-      - name: Enable updater artifacts for CI
-        run: node -e "const fs=require('fs');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.bundle.createUpdaterArtifacts=true;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')"
       - run: yarn tauri build --bundles nsis
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
       - name: Generate latest.json
-        run: node .github/scripts/gen-update-json.mjs windows-x86_64 ${{ github.ref_name }} ${{ github.repository }} nsis
+        run: node .github/scripts/gen-update-json.mjs windows-x86_64 ${{ github.ref_name }} ${{ github.repository }}
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
       - uses: actions/upload-artifact@v4
         with:
           name: windows
@@ -95,46 +87,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: node -e "const fs=require('fs');const v=process.argv[1].replace(/^v/,'');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.version=v;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')" ${{ github.ref_name }}
+      - run: node -e "const fs=require('fs');const v=process.argv[1].replace(/^v/,'');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.version=v;c.bundle.createUpdaterArtifacts=true;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')" ${{ github.ref_name }}
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-          cache: yarn
+        with: { node-version: lts/*, cache: yarn }
       - run: |
           sudo apt-get update
           sudo apt-get install -y \
-            libwebkit2gtk-4.1-dev \
-            libappindicator3-dev \
-            librsvg2-dev \
-            patchelf \
-            libxdo-dev
+            libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libxdo-dev
       - run: yarn install --frozen-lockfile
-      - name: Enable updater artifacts for CI
-        run: node -e "const fs=require('fs');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.bundle.createUpdaterArtifacts=true;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')"
       - run: yarn tauri build --bundles appimage,deb
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
           APPIMAGE_EXTRACT_AND_RUN: "1"
       - name: Generate latest.json
-        run: node .github/scripts/gen-update-json.mjs linux-x86_64 ${{ github.ref_name }} ${{ github.repository }} appimage
+        run: node .github/scripts/gen-update-json.mjs linux-x86_64 ${{ github.ref_name }} ${{ github.repository }}
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
       - uses: actions/upload-artifact@v4
         with:
           name: linux
-          path: |
-            src-tauri/target/release/bundle/appimage/
-            src-tauri/target/release/bundle/deb/*.deb
+          path: src-tauri/target/release/bundle/
 
   release:
-    needs: [build-macos-intel, build-macos-arm64, build-windows, build-linux]
+    needs: [build-macos-x64, build-macos-arm64, build-windows, build-linux]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/download-artifact@v4
-      - name: Merge latest.json
+      - name: Merge latest.json from all platforms
         run: |
           FILES=($(find . -name "latest.json" -type f))
           cp "${FILES[0]}" merged.json
@@ -147,11 +132,11 @@ jobs:
         with:
           files: |
             **/*.dmg
-            **/*.msi
             **/*.exe
+            **/*.msi
             **/*.AppImage
             **/*.deb
             **/*.sig
-            **/*.app.tar.gz
+            **/*.tar.gz
             latest.json
           generate_release_notes: true
