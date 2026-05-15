@@ -14,9 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set version from tag
-        run: |
-          VER="${GITHUB_REF_NAME#v}"
-          sed -i "s/\"version\": \".*\"/\"version\": \"$VER\"/" src-tauri/tauri.conf.json
+        run: jq --arg v "${GITHUB_REF_NAME#v}" '.version = $v' src-tauri/tauri.conf.json > tmp && mv tmp src-tauri/tauri.conf.json
       - uses: dtolnay/rust-toolchain@stable
       - uses: actions/setup-node@v4
         with:
@@ -37,9 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set version from tag
-        run: |
-          VER="${GITHUB_REF_NAME#v}"
-          sed -i "s/\"version\": \".*\"/\"version\": \"$VER\"/" src-tauri/tauri.conf.json
+        run: jq --arg v "${GITHUB_REF_NAME#v}" '.version = $v' src-tauri/tauri.conf.json > tmp && mv tmp src-tauri/tauri.conf.json
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-apple-darwin
@@ -62,9 +58,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set version from tag
-        run: |
-          VER="${GITHUB_REF_NAME#v}"
-          sed -i "s/\"version\": \".*\"/\"version\": \"$VER\"/" src-tauri/tauri.conf.json
+        run: jq --arg v "${GITHUB_REF_NAME#v}" '.version = $v' src-tauri/tauri.conf.json > tmp && mv tmp src-tauri/tauri.conf.json
       - uses: dtolnay/rust-toolchain@stable
       - uses: actions/setup-node@v4
         with:
@@ -85,9 +79,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set version from tag
-        run: |
-          VER="${GITHUB_REF_NAME#v}"
-          sed -i "s/\"version\": \".*\"/\"version\": \"$VER\"/" src-tauri/tauri.conf.json
+        run: jq --arg v "${GITHUB_REF_NAME#v}" '.version = $v' src-tauri/tauri.conf.json > tmp && mv tmp src-tauri/tauri.conf.json
       - uses: dtolnay/rust-toolchain@stable
       - uses: actions/setup-node@v4
         with:
