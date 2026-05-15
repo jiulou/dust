@@ -13,7 +13,7 @@ dist-ssr
 *.local
 
 # Tauri signing private key (keep secret!)
-.tauri-key
+dust.key
 
 # Editor directories and files
 .vscode/*
