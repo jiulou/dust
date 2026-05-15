@@ -2,11 +2,38 @@ use std::collections::HashSet;
 use std::path::Path;
 
 #[tauri::command]
-pub fn trash_paths(paths: Vec<String>) -> Result<(), String> {
+pub fn trash_paths(paths: Vec<String>) -> Result<String, String> {
+    let mut failed = Vec::new();
+    let mut succeeded = 0u32;
+
     for path in &paths {
-        trash::delete(path).map_err(|e| format!("Failed to trash {}: {}", path, e))?;
+        let p = Path::new(path);
+        if !p.exists() {
+            failed.push(format!("{} (not found)", path));
+            continue;
+        }
+        match trash::delete(p) {
+            Ok(_) => succeeded += 1,
+            Err(e) => {
+                // Fallback: try permanent deletion
+                eprintln!("trash::delete failed for {}: {}, trying direct removal", path, e);
+                match std::fs::remove_dir_all(p) {
+                    Ok(_) => succeeded += 1,
+                    Err(e2) => failed.push(format!("{} (trash: {}, remove: {})", path, e, e2)),
+                }
+            }
+        }
     }
-    Ok(())
+
+    if failed.is_empty() {
+        Ok(format!("Moved {} item(s) to trash", succeeded))
+    } else {
+        Err(format!(
+            "Moved {} item(s). Failed: {}",
+            succeeded,
+            failed.join("; ")
+        ))
+    }
 }
 
 #[tauri::command]
@@ -34,7 +61,6 @@ fn get_mount_point(path: &Path) -> String {
     };
     let canonical = path.canonicalize().unwrap_or(path);
     let path_str = canonical.to_string_lossy().to_string();
-
     if path_str.starts_with("/Volumes/") {
         let parts: Vec<&str> = path_str.split('/').collect();
         if parts.len() >= 3 {
