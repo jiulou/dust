@@ -14,7 +14,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set version from tag
-        run: sed -i "s/\"version\": \".*\"/\"version\": \"${GITHUB_REF_NAME#v}\"/" src-tauri/tauri.conf.json
+        run: |
+          VER="${GITHUB_REF_NAME#v}"
+          sed -i "s/\"version\": \".*\"/\"version\": \"$VER\"/" src-tauri/tauri.conf.json
       - uses: dtolnay/rust-toolchain@stable
       - uses: actions/setup-node@v4
         with:
@@ -35,7 +37,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set version from tag
-        run: sed -i "s/\"version\": \".*\"/\"version\": \"${GITHUB_REF_NAME#v}\"/" src-tauri/tauri.conf.json
+        run: |
+          VER="${GITHUB_REF_NAME#v}"
+          sed -i "s/\"version\": \".*\"/\"version\": \"$VER\"/" src-tauri/tauri.conf.json
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-apple-darwin
@@ -58,7 +62,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set version from tag
-        run: sed -i "s/\"version\": \".*\"/\"version\": \"${GITHUB_REF_NAME#v}\"/" src-tauri/tauri.conf.json
+        run: |
+          VER="${GITHUB_REF_NAME#v}"
+          sed -i "s/\"version\": \".*\"/\"version\": \"$VER\"/" src-tauri/tauri.conf.json
       - uses: dtolnay/rust-toolchain@stable
       - uses: actions/setup-node@v4
         with:
@@ -79,7 +85,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set version from tag
-        run: sed -i "s/\"version\": \".*\"/\"version\": \"${GITHUB_REF_NAME#v}\"/" src-tauri/tauri.conf.json
+        run: |
+          VER="${GITHUB_REF_NAME#v}"
+          sed -i "s/\"version\": \".*\"/\"version\": \"$VER\"/" src-tauri/tauri.conf.json
       - uses: dtolnay/rust-toolchain@stable
       - uses: actions/setup-node@v4
         with:
