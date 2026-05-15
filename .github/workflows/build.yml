@@ -21,12 +21,18 @@ jobs:
           node-version: lts/*
           cache: yarn
       - run: yarn install --frozen-lockfile
+      - name: Enable updater artifacts for CI
+        run: node -e "const fs=require('fs');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.bundle.createUpdaterArtifacts=true;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')"
       - run: yarn tauri build --bundles dmg
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
       - name: Generate latest.json
-        run: node .github/scripts/gen-update-json.mjs darwin-x86_64 ${{ github.ref_name }} ${{ github.repository }}
+        run: node .github/scripts/gen-update-json.mjs darwin-x86_64 ${{ github.ref_name }} ${{ github.repository }} macos
+      - run: |
+          echo "=== Bundle contents ==="
+          find src-tauri/target/release/bundle -type f
+          find src-tauri/target/release/bundle -name ".VolumeIcon.icns" -delete
       - uses: actions/upload-artifact@v4
         with:
           name: macos-intel
@@ -46,12 +52,15 @@ jobs:
           node-version: lts/*
           cache: yarn
       - run: yarn install --frozen-lockfile
+      - name: Enable updater artifacts for CI
+        run: node -e "const fs=require('fs');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.bundle.createUpdaterArtifacts=true;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')"
       - run: yarn tauri build --target aarch64-apple-darwin --bundles dmg
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
       - name: Generate latest.json
-        run: node .github/scripts/gen-update-json.mjs darwin-aarch64 ${{ github.ref_name }} ${{ github.repository }}
+        run: node .github/scripts/gen-update-json.mjs darwin-aarch64 ${{ github.ref_name }} ${{ github.repository }} macos
+      - run: find src-tauri/target/aarch64-apple-darwin/release/bundle -name ".VolumeIcon.icns" -delete
       - uses: actions/upload-artifact@v4
         with:
           name: macos-arm64
@@ -69,12 +78,14 @@ jobs:
           node-version: lts/*
           cache: yarn
       - run: yarn install --frozen-lockfile
+      - name: Enable updater artifacts for CI
+        run: node -e "const fs=require('fs');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.bundle.createUpdaterArtifacts=true;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')"
       - run: yarn tauri build --bundles nsis
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
       - name: Generate latest.json
-        run: node .github/scripts/gen-update-json.mjs windows-x86_64 ${{ github.ref_name }} ${{ github.repository }}
+        run: node .github/scripts/gen-update-json.mjs windows-x86_64 ${{ github.ref_name }} ${{ github.repository }} nsis
       - uses: actions/upload-artifact@v4
         with:
           name: windows
@@ -100,13 +111,15 @@ jobs:
             patchelf \
             libxdo-dev
       - run: yarn install --frozen-lockfile
+      - name: Enable updater artifacts for CI
+        run: node -e "const fs=require('fs');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.bundle.createUpdaterArtifacts=true;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')"
       - run: yarn tauri build --bundles appimage,deb
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
           APPIMAGE_EXTRACT_AND_RUN: "1"
       - name: Generate latest.json
-        run: node .github/scripts/gen-update-json.mjs linux-x86_64 ${{ github.ref_name }} ${{ github.repository }}
+        run: node .github/scripts/gen-update-json.mjs linux-x86_64 ${{ github.ref_name }} ${{ github.repository }} appimage
       - uses: actions/upload-artifact@v4
         with:
           name: linux

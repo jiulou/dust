@@ -4,60 +4,63 @@ import { join } from "path"
 const platform = process.argv[2]   // e.g. darwin-x86_64
 const tag = process.argv[3]        // e.g. v1.0.7
 const repo = process.argv[4]       // e.g. jiulou/dust
+const bundleType = process.argv[5] // "macos", "nsis", "appimage"
 
 const version = tag.replace(/^v/, "")
 const baseUrl = `https://github.com/${repo}/releases/download/${tag}`
 
-// Search multiple possible bundle directories for .sig files
-const searchDirs = [
+// Search for .sig files in the specific bundle type directory
+const searchDirs = []
+if (bundleType) {
+  searchDirs.push(
+    `src-tauri/target/release/bundle/${bundleType}`,
+    `src-tauri/target/aarch64-apple-darwin/release/bundle/${bundleType}`,
+  )
+}
+searchDirs.push(
   "src-tauri/target/release/bundle",
   "src-tauri/target/aarch64-apple-darwin/release/bundle",
-  "src-tauri/target/x86_64-apple-darwin/release/bundle",
-]
+)
 
-function findSigFile(dir) {
+function findSig(dir) {
   try {
-    const items = readdirSync(dir)
-    for (const item of items) {
+    for (const item of readdirSync(dir)) {
       const full = join(dir, item)
-      const st = statSync(full)
-      if (st.isDirectory()) {
-        const found = findSigFile(full)
+      if (statSync(full).isDirectory()) {
+        const found = findSig(full)
         if (found) return found
       } else if (item.endsWith(".sig")) {
         return full
       }
     }
-  } catch { /* directory doesn't exist */ }
+  } catch {}
   return null
 }
 
 let sigFile = null
-for (const dir of searchDirs) {
-  sigFile = findSigFile(dir)
-  if (sigFile) break
+for (const d of searchDirs) {
+  sigFile = findSig(d)
+  if (sigFile) {
+    console.log(`Found .sig: ${sigFile}`)
+    break
+  }
 }
 
 if (!sigFile) {
-  console.error("No .sig file found in any bundle directory")
+  console.error("No .sig file found. Searched:")
+  searchDirs.forEach(d => console.error(`  ${d}`))
   process.exit(1)
 }
 
 const artifactPath = sigFile.replace(/\.sig$/, "")
-const artifactName = artifactPath.split("/").pop()
+const artifactName = artifactPath.split(/[/\\]/).pop()
 const sigContent = readFileSync(sigFile, "utf8").trim()
 
-const payload = {
+writeFileSync("latest.json", JSON.stringify({
   version,
   notes: "",
   pub_date: new Date().toISOString(),
-  platforms: {
-    [platform]: {
-      signature: sigContent,
-      url: `${baseUrl}/${artifactName}`,
-    },
-  },
-}
+  platforms: { [platform]: { signature: sigContent, url: `${baseUrl}/${artifactName}` } },
+}, null, 2) + "\n")
 
-writeFileSync("latest.json", JSON.stringify(payload, null, 2) + "\n")
-console.log(`Generated latest.json for ${platform}: ${artifactName}`)
+console.log(`Generated latest.json for ${platform}: artifact=${artifactName}`)
