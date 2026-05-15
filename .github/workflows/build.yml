@@ -16,6 +16,7 @@ jobs:
       - name: Set version from tag
         run: node -e "const fs=require('fs');const v=process.argv[1].replace(/^v/,'');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.version=v;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')" ${{ github.ref_name }}
       - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
@@ -39,6 +40,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-apple-darwin
+      - uses: Swatinem/rust-cache@v2
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
@@ -60,6 +62,7 @@ jobs:
       - name: Set version from tag
         run: node -e "const fs=require('fs');const v=process.argv[1].replace(/^v/,'');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.version=v;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')" ${{ github.ref_name }}
       - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
@@ -81,6 +84,7 @@ jobs:
       - name: Set version from tag
         run: node -e "const fs=require('fs');const v=process.argv[1].replace(/^v/,'');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.version=v;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')" ${{ github.ref_name }}
       - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
@@ -98,6 +102,7 @@ jobs:
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
+          APPIMAGE_EXTRACT_AND_RUN: "1"
       - uses: actions/upload-artifact@v4
         with:
           name: linux

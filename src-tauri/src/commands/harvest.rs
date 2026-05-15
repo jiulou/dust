@@ -12,24 +12,27 @@ pub fn trash_paths(paths: Vec<String>) -> Result<String, String> {
             failed.push(format!("{} (not found)", path));
             continue;
         }
-        match trash::delete(p) {
-            Ok(_) => succeeded += 1,
-            Err(e) => {
-                // Fallback: try permanent deletion
-                eprintln!("trash::delete failed for {}: {}, trying direct removal", path, e);
-                match std::fs::remove_dir_all(p) {
-                    Ok(_) => succeeded += 1,
-                    Err(e2) => failed.push(format!("{} (trash: {}, remove: {})", path, e, e2)),
-                }
+
+        // Try recycle bin first
+        let result = trash::delete(p);
+
+        // On Windows, large directories often fail "too large for recycle bin"
+        // Fall back to direct deletion
+        if result.is_err() {
+            match std::fs::remove_dir_all(p) {
+                Ok(_) => succeeded += 1,
+                Err(e) => failed.push(format!("{}: {}", path, e)),
             }
+        } else {
+            succeeded += 1;
         }
     }
 
     if failed.is_empty() {
-        Ok(format!("Moved {} item(s) to trash", succeeded))
+        Ok(format!("Deleted {} item(s)", succeeded))
     } else {
         Err(format!(
-            "Moved {} item(s). Failed: {}",
+            "Deleted {}. Failed: {}",
             succeeded,
             failed.join("; ")
         ))
