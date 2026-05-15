@@ -7,8 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "tauri": "tauri",
-    "bundle": "yarn build && yarn tauri build && find src-tauri/target/release/bundle -name '.VolumeIcon.icns' -delete 2>/dev/null; true"
+    "tauri": "tauri"
   },
   "dependencies": {
     "@chakra-ui/react": "^3.35.0",
@@ -29,17 +28,7 @@
     "react-dom": "^19.1.0",
     "react-i18next": "^17.0.7",
     "react-icons": "^5.6.0",
-    "recharts": "^3.8.1",
     "zustand": "^5.0.13"
-  },
-  "knip": {
-    "$schema": "https://unpkg.com/knip@5/schema.json",
-    "ignore": [
-      "src-tauri/**"
-    ],
-    "ignoreDependencies": [
-      "@tauri-apps/cli"
-    ]
   },
   "devDependencies": {
     "@tanstack/react-router-devtools": "^1.166.13",
