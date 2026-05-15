@@ -1,0 +1,18 @@
+html {
+  height: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  height: 100%;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+}

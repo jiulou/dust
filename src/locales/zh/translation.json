@@ -1,0 +1,81 @@
+{
+  "nav": {
+    "dashboard": "仪表盘",
+    "settings": "设置"
+  },
+  "dashboard": {
+    "title": "仪表盘",
+    "startScan": "开始扫描",
+    "scanning": "扫描中...",
+    "search": "搜索路径...",
+    "sortBySize": "按体积",
+    "sortByTime": "按时间",
+    "sortByStack": "按技术栈",
+    "selectAll": "全选",
+    "deselectAll": "取消全选",
+    "noResults": "没有找到结果",
+    "itemsFound": "找到 {{found}} 项",
+    "selected": "已选 {{count}} 项 · {{size}}",
+    "moveToTrash": "移到回收站",
+    "scanFailed": "扫描失败: {{message}}",
+    "noDeps": "所选路径下未发现依赖目录。",
+    "idle": "添加目录后开始扫描",
+    "totalProjects": "项目数",
+    "totalSize": "总占用",
+    "techStacks": "技术栈数",
+    "filterAll": "全部",
+    "filterActive": "活跃",
+    "items": "项",
+    "clearAll": "清除全部",
+    "zombie": "僵尸",
+    "link": "链接",
+    "reclaimed": "已释放 {{size}}",
+    "stepAdd": "1. 添加要扫描的目录",
+    "stepScan": "2. 扫描依赖目录",
+    "stepSelect": "3. 选择要清理的项目",
+    "dropHint": "点击选择目录，或拖拽目录到此处",
+    "dropSub": "支持多个目录同时添加",
+    "back": "返回",
+    "noResultsYet": "暂无扫描结果，请先扫描。",
+    "supportedLangs": "支持的语言",
+    "checkUpdate": "检查更新",
+    "upToDate": "已是最新版本！",
+    "updateFailed": "检查更新失败"
+  },
+  "harvest": {
+    "title": "确认收割",
+    "description": "将 {{count}} 个项目移至回收站，释放 {{size}}？",
+    "recycleBin": "项目将被移到系统回收站，并非永久删除。",
+    "cancel": "取消",
+    "confirm": "移至回收站",
+    "success": "成功释放 {{size}}！",
+    "understand": "我已知晓，确认移至回收站",
+    "crossPartitionWarning": "警告：项目跨多分区（{{list}}），请再次确认后继续。"
+  },
+  "settings": {
+    "title": "设置",
+    "appearance": "外观",
+    "language": "语言",
+    "themeColor": "主题色",
+    "colorMode": "主题模式",
+    "dark": "深色",
+    "light": "浅色",
+    "system": "跟随系统",
+    "customRules": "自定义规则",
+    "whitelist": "白名单",
+    "zombieThreshold": "僵尸阈值",
+    "zombieHint": "超过 N 天未活动则标记为僵尸项目",
+    "targetDir": "目标目录",
+    "anchorFile": "锚点文件",
+    "days": "天"
+  },
+  "about": {
+    "title": "关于 Dust",
+    "description": "一个极简的工程依赖清理工具。",
+    "version": "版本"
+  },
+  "common": {
+    "cancel": "取消",
+    "confirm": "确认"
+  }
+}

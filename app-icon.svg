@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#319795"/>
+      <stop offset="100%" stop-color="#285E61"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="224" fill="url(#bg)"/>
+
+  <!-- Radar circle (outer) -->
+  <circle cx="512" cy="512" r="280" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="6"/>
+  <circle cx="512" cy="512" r="200" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="6"/>
+  <circle cx="512" cy="512" r="120" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="6"/>
+
+  <!-- Sweep wedge (semi-transparent) -->
+  <path d="M512 512 L280 400 A240 240 0 0 1 744 400 Z" fill="rgba(255,255,255,0.08)"/>
+
+  <!-- Sweep lines -->
+  <line x1="512" y1="512" x2="280" y2="400" stroke="rgba(255,255,255,0.5)" stroke-width="8" stroke-linecap="round"/>
+  <line x1="512" y1="512" x2="744" y2="400" stroke="rgba(255,255,255,0.2)" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- Arc path (radar sweep) -->
+  <path d="M280 400 A240 240 0 0 1 744 400" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="10" stroke-linecap="round"/>
+
+  <!-- Dust particles -->
+  <circle cx="340" cy="350" r="30" fill="#FFF"/>
+  <circle cx="540" cy="320" r="22" fill="rgba(255,255,255,0.8)"/>
+  <circle cx="680" cy="420" r="16" fill="rgba(255,255,255,0.6)"/>
+  <circle cx="420" cy="440" r="12" fill="rgba(255,255,255,0.5)"/>
+  <circle cx="600" cy="500" r="10" fill="rgba(255,255,255,0.4)"/>
+
+  <!-- Center dot -->
+  <circle cx="512" cy="512" r="18" fill="#FFF"/>
+</svg>

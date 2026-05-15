@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Dust",
+  "version": "0.1.0",
+  "identifier": "com.dust.tool",
+  "build": {
+    "beforeDevCommand": "yarn dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "yarn build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "macOSPrivateApi": true,
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "publisher": "dust",
+    "category": "DeveloperTool"
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDI4QzQwNjFBQjI1RTg2ODIKUldTQ2hsNnlHZ2JFS052ZUNqSW8rc0hDY2hkUnVES3ZOZDlZTit2aFZ3UzdISTVlbTVaUnZGOTUK",
+      "endpoints": [
+        "https://github.com/jiulou/dust/releases/latest/download/latest.json"
+      ]
+    }
+  }
+}

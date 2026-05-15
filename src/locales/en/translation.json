@@ -1,0 +1,81 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "startScan": "Start Scan",
+    "scanning": "Scanning...",
+    "search": "Search paths...",
+    "sortBySize": "Size",
+    "sortByTime": "Last Modified",
+    "sortByStack": "Tech Stack",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "noResults": "No results found",
+    "itemsFound": "{{found}} items found",
+    "selected": "Selected {{count}} items · {{size}}",
+    "moveToTrash": "Move to Trash",
+    "scanFailed": "Scan failed: {{message}}",
+    "noDeps": "No dependency directories found under the selected paths.",
+    "idle": "Add a path and start scanning",
+    "totalProjects": "Projects",
+    "totalSize": "Total Size",
+    "techStacks": "Technology Stacks",
+    "filterAll": "All Stacks",
+    "filterActive": "Active",
+    "items": "items",
+    "clearAll": "clear all",
+    "zombie": "Zombie",
+    "link": "Link",
+    "reclaimed": "Reclaimed {{size}}",
+    "stepAdd": "1. Add directories to scan",
+    "stepScan": "2. Scan for dependencies",
+    "stepSelect": "3. Select items to clean",
+    "dropHint": "Click to select directories or drag & drop them here",
+    "dropSub": "Supports multiple directories",
+    "back": "Back",
+    "noResultsYet": "No scan results. Please scan first.",
+    "supportedLangs": "Supported Languages",
+    "checkUpdate": "Check for Updates",
+    "upToDate": "You're up to date!",
+    "updateFailed": "Update check failed"
+  },
+  "harvest": {
+    "title": "Confirm Harvest",
+    "description": "Move {{count}} project(s) to trash, freeing {{size}}?",
+    "recycleBin": "Items will be moved to the system recycle bin, not permanently deleted.",
+    "cancel": "Cancel",
+    "confirm": "Move to Trash",
+    "success": "Successfully reclaimed {{size}}!",
+    "understand": "I Understand, Move to Trash",
+    "crossPartitionWarning": "Warning: Items span multiple partitions ({{list}}). Click confirm again to proceed."
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "language": "Language",
+    "themeColor": "Theme Color",
+    "colorMode": "Color Mode",
+    "dark": "Dark",
+    "light": "Light",
+    "system": "System",
+    "customRules": "Custom Scan Rules",
+    "whitelist": "Whitelist",
+    "zombieThreshold": "Zombie Threshold",
+    "zombieHint": "Mark project as zombie if inactive for more than N days",
+    "targetDir": "target dir",
+    "anchorFile": "anchor file",
+    "days": "days"
+  },
+  "about": {
+    "title": "About Dust",
+    "description": "A minimal project dependency cleanup tool.",
+    "version": "Version"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  }
+}
