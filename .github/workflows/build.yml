@@ -13,8 +13,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set version from tag
-        run: node -e "const fs=require('fs');const v=process.argv[1].replace(/^v/,'');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.version=v;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')" ${{ github.ref_name }}
+      - run: node -e "const fs=require('fs');const v=process.argv[1].replace(/^v/,'');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.version=v;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')" ${{ github.ref_name }}
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - uses: actions/setup-node@v4
@@ -26,6 +25,8 @@ jobs:
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
+      - name: Generate latest.json
+        run: node .github/scripts/gen-update-json.mjs darwin-x86_64 ${{ github.ref_name }} ${{ github.repository }}
       - uses: actions/upload-artifact@v4
         with:
           name: macos-intel
@@ -35,8 +36,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set version from tag
-        run: node -e "const fs=require('fs');const v=process.argv[1].replace(/^v/,'');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.version=v;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')" ${{ github.ref_name }}
+      - run: node -e "const fs=require('fs');const v=process.argv[1].replace(/^v/,'');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.version=v;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')" ${{ github.ref_name }}
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-apple-darwin
@@ -50,6 +50,8 @@ jobs:
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
+      - name: Generate latest.json
+        run: node .github/scripts/gen-update-json.mjs darwin-aarch64 ${{ github.ref_name }} ${{ github.repository }}
       - uses: actions/upload-artifact@v4
         with:
           name: macos-arm64
@@ -59,8 +61,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set version from tag
-        run: node -e "const fs=require('fs');const v=process.argv[1].replace(/^v/,'');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.version=v;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')" ${{ github.ref_name }}
+      - run: node -e "const fs=require('fs');const v=process.argv[1].replace(/^v/,'');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.version=v;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')" ${{ github.ref_name }}
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - uses: actions/setup-node@v4
@@ -72,6 +73,8 @@ jobs:
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
+      - name: Generate latest.json
+        run: node .github/scripts/gen-update-json.mjs windows-x86_64 ${{ github.ref_name }} ${{ github.repository }}
       - uses: actions/upload-artifact@v4
         with:
           name: windows
@@ -81,8 +84,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set version from tag
-        run: node -e "const fs=require('fs');const v=process.argv[1].replace(/^v/,'');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.version=v;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')" ${{ github.ref_name }}
+      - run: node -e "const fs=require('fs');const v=process.argv[1].replace(/^v/,'');const c=JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json','utf8'));c.version=v;fs.writeFileSync('src-tauri/tauri.conf.json',JSON.stringify(c,null,2)+'\n')" ${{ github.ref_name }}
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - uses: actions/setup-node@v4
@@ -103,10 +105,14 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
           APPIMAGE_EXTRACT_AND_RUN: "1"
+      - name: Generate latest.json
+        run: node .github/scripts/gen-update-json.mjs linux-x86_64 ${{ github.ref_name }} ${{ github.repository }}
       - uses: actions/upload-artifact@v4
         with:
           name: linux
-          path: src-tauri/target/release/bundle/
+          path: |
+            src-tauri/target/release/bundle/appimage/
+            src-tauri/target/release/bundle/deb/*.deb
 
   release:
     needs: [build-macos-intel, build-macos-arm64, build-windows, build-linux]
@@ -115,6 +121,15 @@ jobs:
       contents: write
     steps:
       - uses: actions/download-artifact@v4
+      - name: Merge latest.json
+        run: |
+          FILES=($(find . -name "latest.json" -type f))
+          cp "${FILES[0]}" merged.json
+          for f in "${FILES[@]:1}"; do
+            jq -s '. as [$base, $add] | $base.platforms += $add.platforms | $base' merged.json "$f" > _tmp.json
+            mv _tmp.json merged.json
+          done
+          mv merged.json latest.json
       - uses: softprops/action-gh-release@v2
         with:
           files: |
@@ -124,6 +139,6 @@ jobs:
             **/*.AppImage
             **/*.deb
             **/*.sig
-            **/*.tar.gz
-            **/*.json
+            **/*.app.tar.gz
+            latest.json
           generate_release_notes: true

@@ -18,6 +18,7 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "createUpdaterArtifacts": true,
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -30,7 +31,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDI4QzQwNjFBQjI1RTg2ODIKUldTQ2hsNnlHZ2JFS052ZUNqSW8rc0hDY2hkUnVES3ZOZDlZTit2aFZ3UzdISTVlbTVaUnZGOTUK",
+      "pubkey": "dW50cnRzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDI4QzQwNjFBQjI1RTg2ODIKUldTQ2hsNnlHZ2JFS052ZUNqSW8rc0hDY2hkUnVES3ZOZDlZTit2aFZ3UzdISTVlbTVaUnZGOTUK",
       "endpoints": [
         "https://github.com/jiulou/dust/releases/latest/download/latest.json"
       ]
