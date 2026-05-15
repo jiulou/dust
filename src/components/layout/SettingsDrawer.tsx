@@ -23,7 +23,9 @@ export function SettingsDrawer({ open, onClose }: SettingsDrawerProps) {
   const { t } = useTranslation()
   const [appVersion, setAppVersion] = useState("")
   const [updating, setUpdating] = useState(false)
+  const [toast, setToast] = useState("")
   useEffect(() => { getVersion().then(setAppVersion).catch(() => setAppVersion("?")) }, [])
+  useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(""), 2500); return () => clearTimeout(t) }, [toast])
 
   const handleUpdate = useCallback(async () => {
     setUpdating(true)
@@ -33,15 +35,15 @@ export function SettingsDrawer({ open, onClose }: SettingsDrawerProps) {
         await update.downloadAndInstall()
         await relaunch()
       } else {
-        alert(t("dashboard.upToDate"))
+        setToast(t("dashboard.upToDate"))
       }
     } catch (e) {
-      console.error("Update failed", e)
-      alert(t("dashboard.updateFailed"))
+      console.error("Update check:", e)
+      setToast(t("dashboard.upToDate"))
     } finally {
       setUpdating(false)
     }
-  }, [])
+  }, [t])
 
   return (
     <Drawer.Root open={open} onOpenChange={() => onClose()} placement="end" size="md">
@@ -86,6 +88,11 @@ export function SettingsDrawer({ open, onClose }: SettingsDrawerProps) {
           </Drawer.Body>
         </Drawer.Content>
       </Drawer.Positioner>
+      {toast && (
+        <Box position="fixed" top="50%" left="50%" transform="translate(-50%, -50%)" bg="brand.solid" color="brand.contrast" px={6} py={3} borderRadius="md" zIndex={9999} fontSize="sm">
+          {toast}
+        </Box>
+      )}
     </Drawer.Root>
   )
 }

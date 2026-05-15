@@ -5,40 +5,79 @@ on:
     tags:
       - "v*"
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: macos-latest
-            bundle: dmg
-          - os: windows-latest
-            bundle: msi
-          - os: ubuntu-latest
-            bundle: appimage
-
-    runs-on: ${{ matrix.os }}
-
+  build-macos-intel:
+    runs-on: macos-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Rust setup
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Node.js setup
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-node@v4
         with:
           node-version: lts/*
           cache: yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn tauri build --bundles dmg
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-intel
+          path: src-tauri/target/release/bundle/
 
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
+  build-macos-arm64:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn tauri build --target aarch64-apple-darwin --bundles dmg
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-arm64
+          path: src-tauri/target/aarch64-apple-darwin/release/bundle/
 
-      - name: Install Linux dependencies
-        if: matrix.os == 'ubuntu-latest'
-        run: |
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn tauri build --bundles msi,nsis
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: src-tauri/target/release/bundle/
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: yarn
+      - run: |
           sudo apt-get update
           sudo apt-get install -y \
             libwebkit2gtk-4.1-dev \
@@ -46,82 +85,27 @@ jobs:
             librsvg2-dev \
             patchelf \
             libxdo-dev
-
-      - name: Build
-        run: yarn tauri build --bundles ${{ matrix.bundle }}
+      - run: yarn install --frozen-lockfile
+      - run: yarn tauri build --bundles appimage,deb
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+          TAURI_SIGNING_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
+      - uses: actions/upload-artifact@v4
         with:
-          name: dust-${{ matrix.os }}
-          path: |
-            src-tauri/target/release/bundle/
-            src-tauri/target/release/*.sig
-            src-tauri/target/release/*.tar.gz
-            src-tauri/target/release/*.json
+          name: linux
+          path: src-tauri/target/release/bundle/
 
   release:
-    needs: [build]
+    needs: [build-macos-intel, build-macos-arm64, build-windows, build-linux]
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
     steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
+      - run: |
+          mkdir artifacts
+          find . -path "*/bundle/*" -exec cp -v {} artifacts/ \;
+      - uses: softprops/action-gh-release@v2
         with:
-          pattern: dust-*
-          merge-multiple: true
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            **/*.dmg
-            **/*.msi
-            **/*.exe
-            **/*.AppImage
-            **/*.deb
-            **/*.sig
-            **/*.tar.gz
-            **/*.json
+          files: artifacts/*
           generate_release_notes: true
-
-  build-macos-arm64:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Rust setup
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: aarch64-apple-darwin
-
-      - name: Node.js setup
-        uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-          cache: yarn
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
-      - name: Build (ARM64)
-        run: yarn tauri build --target aarch64-apple-darwin --bundles dmg
-        env:
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_KEY_PASSWORD }}
-
-      - name: Upload ARM64 artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dust-macos-arm64
-          path: |
-            src-tauri/target/aarch64-apple-darwin/release/bundle/
-            src-tauri/target/aarch64-apple-darwin/release/*.sig
-            src-tauri/target/aarch64-apple-darwin/release/*.tar.gz
-            src-tauri/target/aarch64-apple-darwin/release/*.json
